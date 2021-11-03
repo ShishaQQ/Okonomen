@@ -9,28 +9,23 @@ using Okonomen.Models;
 
 namespace Okonomen.Controllers
 {
-    public class BudgetsController : Controller
+    public class BudgetItemsController : Controller
     {
         private readonly OkonomenContext _context;
-        private readonly Data.ApplicationDbContext _applicationDbContext;
 
-
-        public BudgetsController(OkonomenContext context,
-        Data.ApplicationDbContext applicationDbContext)
+        public BudgetItemsController(OkonomenContext context)
         {
             _context = context;
-            _applicationDbContext = applicationDbContext;
         }
 
-        // GET: Budgets
+        // GET: BudgetItems
         public async Task<IActionResult> Index()
         {
-            var okonomenContext = _context.Budgets.Include(b => b.User).Include(b => b.BudgetItems);
-            var item = _context.BudgetItems;
+            var okonomenContext = _context.BudgetItems.Include(b => b.Budget);
             return View(await okonomenContext.ToListAsync());
         }
 
-        // GET: Budgets/Details/5
+        // GET: BudgetItems/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null)
@@ -38,46 +33,43 @@ namespace Okonomen.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets
-                .Include(b => b.User)
-                .Include(b => b.BudgetItems)
+            var budgetItem = await _context.BudgetItems
+                .Include(b => b.Budget)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (budget == null)
+            if (budgetItem == null)
             {
                 return NotFound();
             }
 
-            return View(budget);
+            return View(budgetItem);
         }
 
-        // GET: Budgets/Create
+        // GET: BudgetItems/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id");
-            //ViewData["BudgetitemsId"] = new SelectList(_context.BudgetItems, "Id", "Id");
+            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name");
             return View();
         }
 
-        // POST: Budgets/Create
+        // POST: BudgetItems/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,UserId")] Budget budget)
+        public async Task<IActionResult> Create([Bind("Id,Name,Number,BudgetId")] BudgetItem budgetItem)
         {
-            budget.Id = Guid.NewGuid();
             if (ModelState.IsValid)
             {
-                //budget.Id = Guid.NewGuid();
-                _context.Add(budget);
+                budgetItem.Id = Guid.NewGuid();
+                _context.Add(budgetItem);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
-            return View(budget);
+            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
+            return View(budgetItem);
         }
 
-        // GET: Budgets/Edit/5
+        // GET: BudgetItems/Edit/5
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -85,23 +77,23 @@ namespace Okonomen.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets.FindAsync(id);
-            if (budget == null)
+            var budgetItem = await _context.BudgetItems.FindAsync(id);
+            if (budgetItem == null)
             {
                 return NotFound();
             }
-            ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
-            return View(budget);
+            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
+            return View(budgetItem);
         }
 
-        // POST: Budgets/Edit/5
+        // POST: BudgetItems/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,UserId")] Budget budget)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Number,BudgetId")] BudgetItem budgetItem)
         {
-            if (id != budget.Id)
+            if (id != budgetItem.Id)
             {
                 return NotFound();
             }
@@ -110,12 +102,12 @@ namespace Okonomen.Controllers
             {
                 try
                 {
-                    _context.Update(budget);
+                    _context.Update(budgetItem);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BudgetExists(budget.Id))
+                    if (!BudgetItemExists(budgetItem.Id))
                     {
                         return NotFound();
                     }
@@ -126,11 +118,11 @@ namespace Okonomen.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
-            return View(budget);
+            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
+            return View(budgetItem);
         }
 
-        // GET: Budgets/Delete/5
+        // GET: BudgetItems/Delete/5
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -138,31 +130,31 @@ namespace Okonomen.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets
-                .Include(b => b.User)
+            var budgetItem = await _context.BudgetItems
+                .Include(b => b.Budget)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (budget == null)
+            if (budgetItem == null)
             {
                 return NotFound();
             }
 
-            return View(budget);
+            return View(budgetItem);
         }
 
-        // POST: Budgets/Delete/5
+        // POST: BudgetItems/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var budget = await _context.Budgets.FindAsync(id);
-            _context.Budgets.Remove(budget);
+            var budgetItem = await _context.BudgetItems.FindAsync(id);
+            _context.BudgetItems.Remove(budgetItem);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BudgetExists(Guid id)
+        private bool BudgetItemExists(Guid id)
         {
-            return _context.Budgets.Any(e => e.Id == id);
+            return _context.BudgetItems.Any(e => e.Id == id);
         }
     }
 }

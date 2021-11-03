@@ -9,7 +9,7 @@ namespace Okonomen.Models
     {
         public Budget()
         {
-            BudgetItems = new HashSet<BudgetItem>();
+            BudgetItems = new List<BudgetItem>();
         }
 
         public Guid Id { get; set; }
@@ -18,5 +18,20 @@ namespace Okonomen.Models
 
         public virtual AspNetUser User { get; set; }
         public virtual ICollection<BudgetItem> BudgetItems { get; set; }
+
+        public void AddBudgetTtems(string name, decimal number)
+        {
+            BudgetItem item = new BudgetItem
+            {
+                Id = Guid.NewGuid(),
+                Name = name,
+                Number = number,
+                BudgetId = this.Id
+            };
+
+            this.BudgetItems.Add(item);
+            
+        }
     }
+   
 }
