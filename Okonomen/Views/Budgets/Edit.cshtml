@@ -18,14 +18,24 @@
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <hr />
+            <div class="row">
+                @foreach (var i in Model.BudgetItems) { 
+                <a>
+                    @Html.DisplayFor(modelItem => i.Name)   @Html.DisplayFor(modelItem => i.Number) |
+                    <br />
+                </a> 
+                }
+            </div>
+            <hr />
+               <div class="form-group" hidden="hidden">
                 <label asp-for="UserId" class="control-label"></label>
                 <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-                <span asp-validation-for="UserId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+               <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
         </form>
     </div>
 </div>

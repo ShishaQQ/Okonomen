@@ -85,12 +85,19 @@ namespace Okonomen.Controllers
                 return NotFound();
             }
 
-            var budget = await _context.Budgets.FindAsync(id);
+            var budget = await _context.Budgets
+                .Include(b => b.User)
+                .Include(b => b.BudgetItems)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
             if (budget == null)
             {
                 return NotFound();
             }
             ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
+/*            ViewData["budgetItems"] = new SelectList(_context.Budgets, "budgetItems", "Name", budget.Id);
+*/            /*            ViewData["BudgetItems"] = new SelectList(_context.BudgetItems, "budgetItems", "budgetItems", budget.BudgetItems);
+            */
             return View(budget);
         }
 
@@ -127,6 +134,7 @@ namespace Okonomen.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
+            ViewData["BudgetItems"] = new SelectList(_context.BudgetItems, "Id", "budgetId", budget.BudgetItems);
             return View(budget);
         }
 

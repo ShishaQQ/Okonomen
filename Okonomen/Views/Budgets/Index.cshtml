@@ -40,11 +40,12 @@
         </td>
                 }
             
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Rediger</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Slet</a>
-                </td>
+        <td>
+            <a asp-action="Edit" asp-route-id="@item.Id">Rediger</a> |
+            <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
+            <a asp-action="Delete" asp-route-id="@item.Id">Slet</a> |
+            @Html.ActionLink("Tilføj items til budgettet", "Index", "BudgetItems", null, null)
+        </td>
             </tr>
 }
     </tbody>
