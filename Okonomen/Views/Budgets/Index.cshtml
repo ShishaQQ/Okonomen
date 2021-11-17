@@ -4,7 +4,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Budgetter</h1>
 
 <p>
     <a asp-action="Create">Opret Budget</a>
@@ -33,20 +33,21 @@
             <td>
                 @Html.DisplayFor(modelItem => item.User.UserName)
             </td>
-            @foreach(var i in item.BudgetItems)
-                {
-        <td>
-            @Html.DisplayFor(modelItem => i.Name) @Html.DisplayFor(modelItem => i.Number)
-        </td>
-                }
-            
-        <td>
-            <a asp-action="Edit" asp-route-id="@item.Id">Rediger</a> |
-            <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
-            <a asp-action="Delete" asp-route-id="@item.Id">Slet</a> |
-            @Html.ActionLink("Tilføj items til budgettet", "Index", "BudgetItems", null, null)
-        </td>
-            </tr>
+            @foreach (var i in item.BudgetItems)
+            {
+                <td>
+                    @Html.DisplayFor(modelItem => i.Name) @Html.DisplayFor(modelItem => i.Number)
+                </td>
+            }
+            <td>
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Rediger</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Slet</a> |
+                @Html.ActionLink("Tilføj items til budgettet", "Index", "BudgetItems", new { id = item.Id }, null)
+            </td>
+        </tr>
 }
     </tbody>
 </table>

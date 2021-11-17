@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,90 +10,88 @@ using Okonomen.Models;
 
 namespace Okonomen.Controllers
 {
-    public class BudgetItemsController : Controller
+    [Authorize(Roles = "Admin")]
+    public class AspNetUsersController : Controller
     {
         private readonly OkonomenContext _context;
-        public BudgetItemsController(OkonomenContext context)
+
+        public AspNetUsersController(OkonomenContext context)
         {
             _context = context;
         }
 
-        // GET: BudgetItems
-        public async Task<IActionResult> Index(Guid? id)
+        // GET: AspNetUsers
+        //Costume route
+        [Route("AdminPanel/Users")]
+        public async Task<IActionResult> Index()
         {
-            var okonomenContext = _context.BudgetItems.Include(b => b.Budget).Where(bi => bi.BudgetId == id);
-            return View(await okonomenContext.ToListAsync());
+            return View(await _context.AspNetUsers.ToListAsync());
         }
 
-        // GET: BudgetItems/Details/5
-        public async Task<IActionResult> Details(Guid? id)
+        // GET: AspNetUsers/Details/5
+        public async Task<IActionResult> Details(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var budgetItem = await _context.BudgetItems
-                .Include(b => b.Budget)
+            var aspNetUser = await _context.AspNetUsers
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (budgetItem == null)
+            if (aspNetUser == null)
             {
                 return NotFound();
             }
 
-            return View(budgetItem);
+            return View(aspNetUser);
         }
 
-        // GET: BudgetItems/Create
+        // GET: AspNetUsers/Create
         public IActionResult Create()
         {
-            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name");
             return View();
         }
 
-        // POST: BudgetItems/Create
+        // POST: AspNetUsers/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Number,BudgetId")] BudgetItem budgetItem)
+        public async Task<IActionResult> Create([Bind("Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] AspNetUser aspNetUser)
         {
             if (ModelState.IsValid)
             {
-                budgetItem.Id = Guid.NewGuid();
-                _context.Add(budgetItem);
+                _context.Add(aspNetUser);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
-            return View(budgetItem);
+            return View(aspNetUser);
         }
 
-        // GET: BudgetItems/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        // GET: AspNetUsers/Edit/5
+        public async Task<IActionResult> Edit(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var budgetItem = await _context.BudgetItems.FindAsync(id);
-            if (budgetItem == null)
+            var aspNetUser = await _context.AspNetUsers.FindAsync(id);
+            if (aspNetUser == null)
             {
                 return NotFound();
             }
-            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
-            return View(budgetItem);
+            return View(aspNetUser);
         }
 
-        // POST: BudgetItems/Edit/5
+        // POST: AspNetUsers/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Number,BudgetId")] BudgetItem budgetItem)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,NormalizedUserName,Email,NormalizedEmail,EmailConfirmed,PasswordHash,SecurityStamp,ConcurrencyStamp,PhoneNumber,PhoneNumberConfirmed,TwoFactorEnabled,LockoutEnd,LockoutEnabled,AccessFailedCount")] AspNetUser aspNetUser)
         {
-            if (id != budgetItem.Id)
+            if (id != aspNetUser.Id)
             {
                 return NotFound();
             }
@@ -101,12 +100,12 @@ namespace Okonomen.Controllers
             {
                 try
                 {
-                    _context.Update(budgetItem);
+                    _context.Update(aspNetUser);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BudgetItemExists(budgetItem.Id))
+                    if (!AspNetUserExists(aspNetUser.Id))
                     {
                         return NotFound();
                     }
@@ -117,43 +116,41 @@ namespace Okonomen.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
-            return View(budgetItem);
+            return View(aspNetUser);
         }
 
-        // GET: BudgetItems/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+        // GET: AspNetUsers/Delete/5
+        public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var budgetItem = await _context.BudgetItems
-                .Include(b => b.Budget)
+            var aspNetUser = await _context.AspNetUsers
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (budgetItem == null)
+            if (aspNetUser == null)
             {
                 return NotFound();
             }
 
-            return View(budgetItem);
+            return View(aspNetUser);
         }
 
-        // POST: BudgetItems/Delete/5
+        // POST: AspNetUsers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(Guid id)
+        public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var budgetItem = await _context.BudgetItems.FindAsync(id);
-            _context.BudgetItems.Remove(budgetItem);
+            var aspNetUser = await _context.AspNetUsers.FindAsync(id);
+            _context.AspNetUsers.Remove(aspNetUser);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BudgetItemExists(Guid id)
+        private bool AspNetUserExists(string id)
         {
-            return _context.BudgetItems.Any(e => e.Id == id);
+            return _context.AspNetUsers.Any(e => e.Id == id);
         }
     }
 }

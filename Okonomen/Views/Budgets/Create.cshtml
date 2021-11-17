@@ -13,25 +13,36 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             @*              <div class="form-group">
-                    <label asp-for="Id" class="control-label"></label>
-                    <input asp-for="Id" class="form-control" />
-                    <span asp-validation-for="Id" class="text-danger"></span>
-                </div>*@
+            <label asp-for="Id" class="control-label"></label>
+            <input asp-for="Id" class="form-control" />
+            <span asp-validation-for="Id" class="text-danger"></span>
+        </div>*@
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             @*      <div class="form-group">
-                    <label asp-for="BudgetItems" class="control-label"></label>
-                    <input asp-for="BudgetItems" class="form-control" name="item" /><input asp-for="BudgetItems" class="form-control" />
+            <label asp-for="BudgetItems" class="control-label"></label>
+            <input asp-for="BudgetItems" class="form-control" name="item" /><input asp-for="BudgetItems" class="form-control" />
 
-                    <span asp-validation-for="BudgetItems" class="text-danger"></span>
-                </div>*@
-            <div class="form-group">
-                <label asp-for="UserId" class="control-label"></label>
-                <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
-            </div>
+            <span asp-validation-for="BudgetItems" class="text-danger"></span>
+        </div>*@
+            @{if (ViewBag.Admin == null)
+                {
+                    <div class="form-group" hidden="hidden">
+                        <label asp-for="UserId" class="control-label"></label>
+                        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        <label asp-for="UserId" class="control-label"></label>
+                        <select asp-for="UserId" class="form-control" asp-items="ViewBag.UserId"></select>
+                    </div>
+                }
+            }
             <div>
 
             </div>

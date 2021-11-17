@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Okonomen.Areas.Identity.Code;
 using Okonomen.Data;
 using Okonomen.Models;
 using System;
@@ -30,6 +31,8 @@ namespace Okonomen
         {
             services.AddControllersWithViews();
             services.AddDbContext<OkonomenContext>();
+            services.AddTransient<RoleHandler>();
+
 
         }
 

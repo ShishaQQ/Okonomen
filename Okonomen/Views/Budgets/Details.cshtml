@@ -29,11 +29,15 @@
         @foreach (var i in Model.BudgetItems)
         {
             <dd>
-                @Html.DisplayFor(modelItem => i.Name) @Html.DisplayFor(modelItem => i.Number) 
+                @Html.DisplayFor(modelItem => i.Name) @Html.DisplayFor(modelItem => i.Number)
                 <br />
-            </dd>      
-        }
+            </dd>
 
+        }
+        <dt class="col-sm-3">
+            Rådighedsbeløb: @Html.ViewBag.TotalValue
+            
+        </dt>
 
     </dl>
 </div>

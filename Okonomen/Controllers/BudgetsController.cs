@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using Okonomen.Models;
 
 namespace Okonomen.Controllers
 {
+    [Authorize("RequireAuthenticatedUser")]
     public class BudgetsController : Controller
     {
         private readonly OkonomenContext _context;
@@ -25,9 +27,21 @@ namespace Okonomen.Controllers
         // GET: Budgets
         public async Task<IActionResult> Index()
         {
-            var okonomenContext = _context.Budgets.Include(b => b.User).Include(b => b.BudgetItems);
-            var item = _context.BudgetItems;
-            return View(await okonomenContext.ToListAsync());
+            string userName = User.Identity.Name;
+            //Hvis Admin, vis alle budgetter for alle brugere
+            if (User.IsInRole("Admin"))
+            {
+                var item = _context.BudgetItems;
+                var okonomenContext = _context.Budgets.Include(b => b.User).Include(b => b.BudgetItems);
+                return View(await okonomenContext.ToListAsync());
+            }
+            else
+            {
+                //Vis kun budgetter der tilhøre brugeren
+                var item = _context.BudgetItems;
+                var okonomenContext = _context.Budgets.Where(b => b.User.UserName == userName).Include(b => b.User).Include(b => b.BudgetItems);
+                return View(await okonomenContext.ToListAsync());
+            }
         }
 
         // GET: Budgets/Details/5
@@ -42,6 +56,7 @@ namespace Okonomen.Controllers
                 .Include(b => b.User)
                 .Include(b => b.BudgetItems)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            ViewData["Totalvalue"] = CalculateBudgetItems(budget.BudgetItems);
             if (budget == null)
             {
                 return NotFound();
@@ -53,8 +68,18 @@ namespace Okonomen.Controllers
         // GET: Budgets/Create
         public IActionResult Create()
         {
-            ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id");
-            //ViewData["BudgetitemsId"] = new SelectList(_context.BudgetItems, "Id", "Id");
+            string userName = User.Identity.Name;
+            if (User.IsInRole("Admin"))
+            {
+                //Admin kan vælge imellem alle brugere
+                //Dette er kun til at vise at man kan
+                ViewData["Admin"] = true;
+                ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id");
+            }
+            else
+            {
+                ViewData["UserId"] = new SelectList(_context.AspNetUsers.Where(u => u.UserName == userName).Select(u => u.Id));
+            }
             return View();
         }
 
@@ -95,9 +120,6 @@ namespace Okonomen.Controllers
                 return NotFound();
             }
             ViewData["UserId"] = new SelectList(_context.AspNetUsers, "Id", "Id", budget.UserId);
-/*            ViewData["budgetItems"] = new SelectList(_context.Budgets, "budgetItems", "Name", budget.Id);
-*/            /*            ViewData["BudgetItems"] = new SelectList(_context.BudgetItems, "budgetItems", "budgetItems", budget.BudgetItems);
-            */
             return View(budget);
         }
 
@@ -148,6 +170,7 @@ namespace Okonomen.Controllers
 
             var budget = await _context.Budgets
                 .Include(b => b.User)
+                .Include(b => b.BudgetItems)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (budget == null)
             {
@@ -162,7 +185,15 @@ namespace Okonomen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var budget = await _context.Budgets.FindAsync(id);
+            var budget = await _context.Budgets.Include(b => b.BudgetItems).FirstOrDefaultAsync(m => m.Id == id);
+            if (budget.BudgetItems.Any())
+            {
+                foreach (var item in budget.BudgetItems)
+                {
+                   _context.BudgetItems.Remove(item);
+                }
+               
+            }
             _context.Budgets.Remove(budget);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -171,6 +202,15 @@ namespace Okonomen.Controllers
         private bool BudgetExists(Guid id)
         {
             return _context.Budgets.Any(e => e.Id == id);
+        }
+        public decimal? CalculateBudgetItems(ICollection<BudgetItem> items)
+        {
+            decimal? TotalVal = 0;
+            foreach (var item in items)
+            {
+               TotalVal += item.Number;
+            }
+            return TotalVal;
         }
     }
 }

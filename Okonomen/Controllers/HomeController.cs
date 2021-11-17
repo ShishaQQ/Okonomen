@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Okonomen.Areas.Identity.Code;
 using Okonomen.Models;
 using System;
 using System.Collections.Generic;
@@ -12,18 +13,39 @@ namespace Okonomen.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly RoleHandler _roleHandler;
+        private readonly IServiceProvider _serviceProvider;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(
+            ILogger<HomeController> logger, 
+            RoleHandler roleHandler,
+            IServiceProvider serviceProvider)
         {
             _logger = logger;
+            _roleHandler = roleHandler;
+            _serviceProvider = serviceProvider;
+
         }
 
         public IActionResult Index()
         {
+            //sæt rollen ved startup
+           // await _roleHandler.CreateRole("Admin", _serviceProvider);
+            //await _roleHandler.SetRole("janniks@comxnet.dk", "Admin", _serviceProvider);
+
             return View();
         }
 
         public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        public IActionResult Skat()
+        {
+            return View();
+        }
+        public IActionResult AdminPanel()
         {
             return View();
         }
