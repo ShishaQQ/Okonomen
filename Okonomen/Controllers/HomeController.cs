@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Okonomen.Areas.Identity.Code;
 using Okonomen.Models;
@@ -29,6 +30,8 @@ namespace Okonomen.Controllers
 
         public IActionResult Index()
         {
+           
+
             //sæt rollen ved startup
            // await _roleHandler.CreateRole("Admin", _serviceProvider);
             //await _roleHandler.SetRole("janniks@comxnet.dk", "Admin", _serviceProvider);
@@ -45,6 +48,8 @@ namespace Okonomen.Controllers
         {
             return View();
         }
+        [Authorize("RequireAuthenticatedUser")]
+        [Authorize(Roles = "Admin")]
         public IActionResult AdminPanel()
         {
             return View();

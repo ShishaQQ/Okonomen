@@ -6,7 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Okonomen.Code;
 using Okonomen.Models;
+using System.Net;
 
 namespace Okonomen.Controllers
 {
@@ -211,6 +213,18 @@ namespace Okonomen.Controllers
                TotalVal += item.Number;
             }
             return TotalVal;
+        }
+
+        public async Task<IActionResult> Download(Guid id)
+        {
+            var budget =  _context.Budgets
+                .Include(b => b.User)
+                .Include(b => b.BudgetItems)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            ExcelHelper.WriteBudgetCsv((Budget)budget.Result);
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

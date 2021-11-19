@@ -45,7 +45,8 @@
                 <a asp-action="Edit" asp-route-id="@item.Id">Rediger</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Detaljer</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Slet</a> |
-                @Html.ActionLink("Tilføj items til budgettet", "Index", "BudgetItems", new { id = item.Id }, null)
+                @Html.ActionLink("Tilføj items til budgettet", "Index", "BudgetItems", new { id = item.Id }, null) |
+                <a asp-action="Download" asp-route-id="@item.Id">Download</a>
             </td>
         </tr>
 }
