@@ -44,9 +44,11 @@ namespace Okonomen.Controllers
         }
 
         // GET: BudgetItems/Create
-        public IActionResult Create()
+        public IActionResult Create(Guid? Id)
         {
-            ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name");
+            string userName = User.Identity.Name;
+
+            ViewData["BudgetId"] = new SelectList(_context.Budgets.Where(b => b.User.UserName == userName).Select(bi=>bi.Id == Id), "Id", "Name");
             return View();
         }
 
@@ -57,12 +59,13 @@ namespace Okonomen.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Number,BudgetId")] BudgetItem budgetItem)
         {
+
             if (ModelState.IsValid)
             {
                 budgetItem.Id = Guid.NewGuid();
                 _context.Add(budgetItem);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Index), new { id = budgetItem.BudgetId});
             }
             ViewData["BudgetId"] = new SelectList(_context.Budgets, "Id", "Name", budgetItem.BudgetId);
             return View(budgetItem);
