@@ -34,14 +34,19 @@ namespace Okonomen.Controllers
             if (User.IsInRole("Admin"))
             {
                 var item = _context.BudgetItems;
-                var okonomenContext = _context.Budgets.Include(b => b.User).Include(b => b.BudgetItems);
+                var okonomenContext = _context.Budgets
+                    .Include(b => b.User)
+                    .Include(b => b.BudgetItems);
                 return View(await okonomenContext.ToListAsync());
             }
             else
             {
                 //Vis kun budgetter der tilhøre brugeren
                 var item = _context.BudgetItems;
-                var okonomenContext = _context.Budgets.Where(b => b.User.UserName == userName).Include(b => b.User).Include(b => b.BudgetItems);
+                var okonomenContext = _context.Budgets
+                    .Where(b => b.User.UserName == userName)
+                    .Include(b => b.User)
+                    .Include(b => b.BudgetItems);
                 return View(await okonomenContext.ToListAsync());
             }
         }
