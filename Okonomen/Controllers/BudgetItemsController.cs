@@ -48,7 +48,7 @@ namespace Okonomen.Controllers
         {
             string userName = User.Identity.Name;
 
-            ViewData["BudgetId"] = new SelectList(_context.Budgets.Where(b => b.User.UserName == userName).Select(bi=>bi.Id == Id), "Id", "Name");
+            ViewData["BudgetId"] = new SelectList(_context.Budgets.Where(b => b.User.UserName == userName), "Id", "Name");
             return View();
         }
 

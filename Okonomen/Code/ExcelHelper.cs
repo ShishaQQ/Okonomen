@@ -20,7 +20,9 @@ namespace Okonomen.Code
             }
            
             File.WriteAllText(filePath, sb.ToString());
+
         }
+        // TODO lad brugeren selv vælge hvilken mappe der skal downloades til og fremvis nede i browseren at den er blevet downloadet
     }
 }
 
